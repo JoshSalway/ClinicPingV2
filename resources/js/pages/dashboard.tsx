@@ -1,6 +1,7 @@
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/react';
+import DashboardStats from '@/components/DashboardStats';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -15,63 +16,12 @@ export default function Dashboard() {
             <Head title="Dashboard" />
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
                 {/* Stats Cards */}
-                <div className="grid auto-rows-min gap-4 md:grid-cols-4">
-                    <div className="border-sidebar-border/70 dark:border-sidebar-border relative rounded-xl border bg-white p-6">
-                        <div className="flex items-center">
-                            <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                                <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
-                                </svg>
-                            </div>
-                            <div className="ml-4">
-                                <p className="text-sm font-medium text-gray-600">Total Patients</p>
-                                <p className="text-2xl font-bold text-gray-900">5</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="border-sidebar-border/70 dark:border-sidebar-border relative rounded-xl border bg-white p-6">
-                        <div className="flex items-center">
-                            <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                                <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
-                                </svg>
-                            </div>
-                            <div className="ml-4">
-                                <p className="text-sm font-medium text-gray-600">Forms Sent Today</p>
-                                <p className="text-2xl font-bold text-gray-900">3</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="border-sidebar-border/70 dark:border-sidebar-border relative rounded-xl border bg-white p-6">
-                        <div className="flex items-center">
-                            <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
-                                <svg className="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                </svg>
-                            </div>
-                            <div className="ml-4">
-                                <p className="text-sm font-medium text-gray-600">Pending Forms</p>
-                                <p className="text-2xl font-bold text-gray-900">1</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="border-sidebar-border/70 dark:border-sidebar-border relative rounded-xl border bg-white p-6">
-                        <div className="flex items-center">
-                            <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                                <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                                </svg>
-                            </div>
-                            <div className="ml-4">
-                                <p className="text-sm font-medium text-gray-600">Today's Appointments</p>
-                                <p className="text-2xl font-bold text-gray-900">0</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <DashboardStats
+                    totalPatients={5}
+                    formsSentToday={3}
+                    pendingForms={1}
+                    todaysAppointments={0}
+                />
 
                 {/* Patient Table */}
                 <div className="border-sidebar-border/70 dark:border-sidebar-border relative min-h-[50vh] flex-1 rounded-xl border bg-white">
