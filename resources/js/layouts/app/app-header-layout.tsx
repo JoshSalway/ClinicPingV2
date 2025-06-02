@@ -6,7 +6,7 @@ import type { PropsWithChildren } from 'react';
 
 export default function AppHeaderLayout({ children, breadcrumbs }: PropsWithChildren<{ breadcrumbs?: BreadcrumbItem[] }>) {
     return (
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-background">
             <AppShell>
                 <AppHeader breadcrumbs={breadcrumbs} />
                 <AppContent>{children}</AppContent>
