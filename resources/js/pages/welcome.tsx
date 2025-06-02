@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Link } from "@inertiajs/react";
 
 export default function Welcome() {
-  return (
+    return (
     <div className="min-h-screen bg-background text-foreground">
       {/* Header */}
       <header className="bg-white/80 dark:bg-neutral-900/80 backdrop-blur-sm border-b border-gray-200 dark:border-neutral-800">
@@ -20,10 +20,10 @@ export default function Welcome() {
                 Try Demo
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
-            </Link>
+                            </Link>
           </div>
         </div>
-      </header>
+                </header>
 
       {/* Hero Section */}
       <section className="py-16 px-4 sm:px-6 lg:px-8">
@@ -60,14 +60,14 @@ export default function Welcome() {
             <div>
               <div className="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center mx-auto mb-3">
                 <Users className="h-6 w-6 text-green-600 dark:text-green-400" />
-              </div>
+                        </div>
               <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Manage Patients</h3>
               <p className="text-gray-600 dark:text-gray-300 text-sm">Keep track of patient information and appointment status</p>
-            </div>
+                        </div>
             <div>
               <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center mx-auto mb-3">
                 <Clock className="h-6 w-6 text-purple-600 dark:text-purple-400" />
-              </div>
+                </div>
               <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Track Progress</h3>
               <p className="text-gray-600 dark:text-gray-300 text-sm">See who received forms and completion status in real-time</p>
             </div>
@@ -93,5 +93,5 @@ export default function Welcome() {
         </div>
       </section>
     </div>
-  );
+    );
 }

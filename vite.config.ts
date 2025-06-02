@@ -22,4 +22,9 @@ export default defineConfig({
             'ziggy-js': resolve(__dirname, 'vendor/tightenco/ziggy'),
         },
     },
+    server: {
+        proxy: {
+            '/api': 'http://clinicping.test', // or your backend URL
+        }
+    },
 });

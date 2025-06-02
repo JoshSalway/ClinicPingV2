@@ -11,14 +11,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', function () {
         return Inertia::render('dashboard');
     })->name('dashboard');
-
-    Route::get('patients', function () {
-        return Inertia::render('patients');
-    })->name('patients');
-
-    Route::get('sms-history', function () {
-        return Inertia::render('SmsHistory');
-    })->name('sms-history');
 });
 
 require __DIR__.'/settings.php';
