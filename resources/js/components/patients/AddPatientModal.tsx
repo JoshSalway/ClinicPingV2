@@ -1,0 +1,116 @@
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
+import { useForm } from '@inertiajs/react';
+import { useState } from 'react';
+
+export default function AddPatientModal() {
+  const [open, setOpen] = useState(false);
+  const { data, setData, processing, errors, reset } = useForm({
+    name: '',
+    phone: '',
+    email: '',
+    appointment_date: '',
+    appointment_time: '',
+  });
+
+  function handleClose() {
+    setOpen(false);
+    reset();
+  }
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    // TODO: submit to backend
+    setOpen(false);
+    reset();
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button className="bg-blue-600 hover:bg-blue-700 text-white">+ Add Patient</Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Add Patient</DialogTitle>
+        </DialogHeader>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <Label htmlFor="name">Name</Label>
+            <Input
+              id="name"
+              value={data.name}
+              onChange={e => setData('name', e.target.value)}
+              required
+              autoFocus
+              placeholder="Full name"
+              disabled={processing}
+            />
+            {errors.name && <div className="text-destructive text-sm mt-1">{errors.name}</div>}
+          </div>
+          <div>
+            <Label htmlFor="phone">Phone</Label>
+            <Input
+              id="phone"
+              value={data.phone}
+              onChange={e => setData('phone', e.target.value)}
+              required
+              placeholder="(555) 123-4567"
+              disabled={processing}
+            />
+            {errors.phone && <div className="text-destructive text-sm mt-1">{errors.phone}</div>}
+          </div>
+          <div>
+            <Label htmlFor="email">Email</Label>
+            <Input
+              id="email"
+              type="email"
+              value={data.email}
+              onChange={e => setData('email', e.target.value)}
+              required
+              placeholder="email@example.com"
+              disabled={processing}
+            />
+            {errors.email && <div className="text-destructive text-sm mt-1">{errors.email}</div>}
+          </div>
+          <div className="flex gap-2">
+            <div className="flex-1">
+              <Label htmlFor="appointment_date">Appointment Date</Label>
+              <Input
+                id="appointment_date"
+                type="date"
+                value={data.appointment_date}
+                onChange={e => setData('appointment_date', e.target.value)}
+                required
+                disabled={processing}
+              />
+              {errors.appointment_date && <div className="text-destructive text-sm mt-1">{errors.appointment_date}</div>}
+            </div>
+            <div className="flex-1">
+              <Label htmlFor="appointment_time">Appointment Time</Label>
+              <Input
+                id="appointment_time"
+                type="time"
+                value={data.appointment_time}
+                onChange={e => setData('appointment_time', e.target.value)}
+                required
+                disabled={processing}
+              />
+              {errors.appointment_time && <div className="text-destructive text-sm mt-1">{errors.appointment_time}</div>}
+            </div>
+          </div>
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button type="button" variant="outline" onClick={handleClose} disabled={processing}>Cancel</Button>
+            </DialogClose>
+            <Button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white" disabled={processing}>
+              {processing ? 'Adding...' : 'Add Patient'}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+} 
