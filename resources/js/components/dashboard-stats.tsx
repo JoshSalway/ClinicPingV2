@@ -16,7 +16,7 @@ export default function DashboardStats({
   return (
     <div className="grid auto-rows-min gap-4 md:grid-cols-4">
       {/* Total Patients */}
-      <div className="rounded-lg bg-white dark:bg-neutral-900 text-gray-900 dark:text-white shadow-sm border border-gray-200 dark:border-neutral-800">
+      <div className="rounded-lg bg-white dark:bg-neutral-900 text-gray-900 dark:text-white border border-gray-200 dark:border-neutral-800">
         <div className="p-6">
           <div className="flex items-center">
             <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
@@ -35,7 +35,7 @@ export default function DashboardStats({
         </div>
       </div>
       {/* Forms Sent Today */}
-      <div className="rounded-lg bg-white dark:bg-neutral-900 text-gray-900 dark:text-white shadow-sm border border-gray-200 dark:border-neutral-800">
+      <div className="rounded-lg bg-white dark:bg-neutral-900 text-gray-900 dark:text-white border border-gray-200 dark:border-neutral-800">
         <div className="p-6">
           <div className="flex items-center">
             <div className="w-12 h-12 bg-yellow-100 dark:bg-yellow-900 rounded-lg flex items-center justify-center">
@@ -52,7 +52,7 @@ export default function DashboardStats({
         </div>
       </div>
       {/* Pending Forms */}
-      <div className="rounded-lg bg-white dark:bg-neutral-900 text-gray-900 dark:text-white shadow-sm border border-gray-200 dark:border-neutral-800">
+      <div className="rounded-lg bg-white dark:bg-neutral-900 text-gray-900 dark:text-white border border-gray-200 dark:border-neutral-800">
         <div className="p-6">
           <div className="flex items-center">
             <div className="w-12 h-12 bg-gray-100 dark:bg-gray-800 rounded-lg flex items-center justify-center">
@@ -69,7 +69,7 @@ export default function DashboardStats({
         </div>
       </div>
       {/* Today's Appointments */}
-      <div className="rounded-lg bg-white dark:bg-neutral-900 text-gray-900 dark:text-white shadow-sm border border-gray-200 dark:border-neutral-800">
+      <div className="rounded-lg bg-white dark:bg-neutral-900 text-gray-900 dark:text-white border border-gray-200 dark:border-neutral-800">
         <div className="p-6">
           <div className="flex items-center">
             <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center">
