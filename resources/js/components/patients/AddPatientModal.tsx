@@ -30,7 +30,12 @@ export default function AddPatientModal() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="bg-blue-600 hover:bg-blue-700 text-white">+ Add Patient</Button>
+        <Button className="bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-md dark:bg-blue-500 dark:hover:bg-blue-400 inline-flex items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="h-4 w-4">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+          </svg>
+          Add Patient
+        </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
