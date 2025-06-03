@@ -42,4 +42,25 @@ class PatientController extends Controller
 
         return response()->json($patients);
     }
+
+    public function show($id)
+    {
+        $patient = Patient::findOrFail($id);
+        $appointment_at = $patient->appointment_at;
+        $date = $appointment_at ? date('Y-m-d', strtotime($appointment_at)) : null;
+        $time = $appointment_at ? date('H:i', strtotime($appointment_at)) : null;
+        $smsMessages = $patient->smsMessages()->orderByDesc('sent_at')->get(['id', 'content', 'status', 'sent_at']);
+        return response()->json([
+            'id' => $patient->id,
+            'first_name' => $patient->first_name,
+            'last_name' => $patient->last_name,
+            'phone' => $patient->phone,
+            'email' => $patient->email,
+            'appointment_date' => $date,
+            'appointment_time' => $time,
+            'status' => $patient->status,
+            'last_sent_at' => $patient->last_sent_at,
+            'sms_messages' => $smsMessages,
+        ]);
+    }
 } 

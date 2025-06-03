@@ -17,7 +17,7 @@ class SmsMessageFactory extends Factory
     public function definition(): array
     {
         return [
-            'content' => $this->faker->sentence(),
+            'content' => 'Please complete your medical history form: [form link]',
             'status' => $this->faker->randomElement(['pending', 'sent', 'completed', 'failed']),
             'sent_at' => $this->faker->optional()->dateTimeThisYear(),
         ];

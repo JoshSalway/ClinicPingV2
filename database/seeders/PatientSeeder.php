@@ -17,22 +17,23 @@ class PatientSeeder extends Seeder
         $patients = collect();
         $today = now()->format('Y-m-d');
 
-        $auCount = (int)round($total * 0.45);
-        $coCount = (int)round($total * 0.45);
-        $usCount = $total - $auCount - $coCount;
-        $countryPool = array_merge(
-            array_fill(0, $auCount, 'AU'),
-            array_fill(0, $coCount, 'CO'),
-            array_fill(0, $usCount, 'US')
-        );
-        shuffle($countryPool);
+        // Randomly select 20 indices for patients who will have SMS sent
+        $smsIndices = collect(range(0, $total - 1))->shuffle()->take(20)->values();
+        // Randomly select 15-20 indices for today's appointments
+        $apptTodayCount = rand(15, 20);
+        $apptTodayIndices = collect(range(0, $total - 1))->shuffle()->take($apptTodayCount)->values();
 
         for ($i = 0; $i < $total; $i++) {
-            $country = array_pop($countryPool);
-            Patient::factory()->create([
-                'appointment_at' => $faker->optional()->dateTimeBetween('-2 weeks', '+2 weeks'),
+            $country = 'AU';
+            $isSms = $smsIndices->contains($i);
+            $isToday = $apptTodayIndices->contains($i);
+            $status = $isSms ? 'sent' : 'pending'; // Default, will be updated by SmsMessageSeeder
+            $appointment = $isToday ? $today : $faker->optional()->dateTimeBetween('-2 weeks', '+2 weeks');
+            $patients->push(Patient::factory()->create([
+                'appointment_at' => $appointment,
                 'phone' => $this->randomPhone($faker, $country),
-            ]);
+                'status' => $status,
+            ]));
         }
     }
 

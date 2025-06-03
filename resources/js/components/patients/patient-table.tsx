@@ -5,6 +5,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Button } from '@/components/ui/button';
 import AddPatientModal from '@/components/patients/AddPatientModal';
 import StatusBadge from './status-badge';
+import SendSmsModal from './SendSmsModal';
+import PatientDetailsModal from './PatientDetailsModal';
 
 type StatusType = 'completed' | 'sent' | 'pending' | 'failed';
 
@@ -32,6 +34,10 @@ export default function PatientTable() {
   const [status, setStatus] = useState('all');
   const [sortBy, setSortBy] = useState('name');
   const [page, setPage] = useState(1);
+  const [smsModalOpen, setSmsModalOpen] = useState(false);
+  const [detailsModalOpen, setDetailsModalOpen] = useState(false);
+  const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
+  const [selectedPatientId, setSelectedPatientId] = useState<number | null>(null);
 
   const { data, isLoading, isError } = useQuery<PatientApiResponse>({
     queryKey: ['patients', { search, status, sortBy, page }],
@@ -44,6 +50,13 @@ export default function PatientTable() {
   });
 
   const safeData: PatientApiResponse = data || { data: [], current_page: 1, last_page: 1, per_page: 10, total: 0 };
+
+  // Add a refetch function for after sending SMS
+  const refetch = () => {
+    // This will trigger react-query to refetch
+    // (You may need to useQuery's refetch if available)
+    window.location.reload(); // fallback if not using refetch
+  };
 
   return (
     <div className="border border-gray-200 dark:border-neutral-800 rounded-2xl shadow-sm bg-white dark:bg-neutral-900">
@@ -153,6 +166,7 @@ export default function PatientTable() {
                       <Button 
                         size="sm" 
                         className="bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-md dark:bg-blue-500 dark:hover:bg-blue-400"
+                        onClick={() => { setSelectedPatient(patient); setSmsModalOpen(true); }}
                       >
                         <svg 
                           xmlns="http://www.w3.org/2000/svg" 
@@ -176,6 +190,7 @@ export default function PatientTable() {
                         variant="ghost"
                         className="inline-flex items-center justify-center gap-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800"
                         title="View"
+                        onClick={() => { setSelectedPatientId(patient.id); setDetailsModalOpen(true); }}
                       >
                         <svg 
                           xmlns="http://www.w3.org/2000/svg" 
@@ -214,6 +229,17 @@ export default function PatientTable() {
           </div>
         </div>
       )}
+      <SendSmsModal
+        open={smsModalOpen}
+        onOpenChange={setSmsModalOpen}
+        patient={selectedPatient}
+        onSent={refetch}
+      />
+      <PatientDetailsModal
+        open={detailsModalOpen}
+        onOpenChange={setDetailsModalOpen}
+        patientId={selectedPatientId}
+      />
     </div>
   );
 } 

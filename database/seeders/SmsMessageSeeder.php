@@ -15,51 +15,60 @@ class SmsMessageSeeder extends Seeder
      */
     public function run(): void
     {
-        $patients = Patient::all();
-        SmsMessage::factory(50)->create()->each(function ($sms) use ($patients) {
-            // Attach to 1-3 random patients
-            $sms->patients()->attach($patients->random(rand(1, 3))->pluck('id')->toArray());
-        });
+        $message = 'Please complete your medical history form: [form link]';
+        $now = now();
 
-        // Ensure at least 1 form sent today (not pending)
-        SmsMessage::factory()->state([
-            'content' => 'Sent today only',
-            'sent_at' => Carbon::today('UTC')->format('Y-m-d 00:00:00'),
-            'status' => 'sent',
-        ])->create()->each(function ($sms) use ($patients) {
-            $sms->patients()->syncWithoutDetaching($patients->random(rand(1, min(3, $patients->count())))->pluck('id')->toArray());
-        });
+        // Get 20 random patients with status 'sent'
+        $smsPatients = Patient::where('status', 'sent')->inRandomOrder()->take(20)->get();
+        $completedCount = 18;
+        $failedCount = 2;
+        $completedPatients = $smsPatients->slice(0, $completedCount);
+        $failedPatients = $smsPatients->slice($completedCount, $failedCount);
 
-        // Ensure at least 1 pending form (not sent today)
-        SmsMessage::factory()->state([
-            'content' => 'Pending only',
-            'sent_at' => Carbon::yesterday('UTC')->format('Y-m-d 00:00:00'),
-            'status' => 'pending',
-        ])->create()->each(function ($sms) use ($patients) {
-            $sms->patients()->syncWithoutDetaching($patients->random(rand(1, min(3, $patients->count())))->pluck('id')->toArray());
-        });
+        foreach ($completedPatients as $patient) {
+            // Appointment at 11:00 AM today
+            $appointment = $now->copy()->setTime(11, 0, 0);
+            $patient->update(['appointment_at' => $appointment]);
+            // Sent at 10:45 AM
+            $sentAt = $appointment->copy()->subMinutes(15);
+            $sentSms = SmsMessage::create([
+                'content' => $message,
+                'status' => 'sent',
+                'sent_at' => $sentAt,
+            ]);
+            $sentSms->patients()->syncWithoutDetaching([$patient->id]);
+            // Completed at 10:46 AM
+            $completedAt = $sentAt->copy()->addMinute();
+            $completedSms = SmsMessage::create([
+                'content' => $message,
+                'status' => 'completed',
+                'sent_at' => $completedAt,
+            ]);
+            $completedSms->patients()->syncWithoutDetaching([$patient->id]);
+            $patient->update(['status' => 'completed', 'last_sent_at' => $completedAt]);
+        }
 
-        // Ensure at least 1 form that is both sent today and pending
-        SmsMessage::factory()->state([
-            'content' => 'Sent today and pending',
-            'sent_at' => Carbon::today('UTC')->format('Y-m-d 00:00:00'),
-            'status' => 'pending',
-        ])->create()->each(function ($sms) use ($patients) {
-            $sms->patients()->syncWithoutDetaching($patients->random(rand(1, min(3, $patients->count())))->pluck('id')->toArray());
-        });
-
-        // Ensure at least 1 patient with today's appointment
-        \App\Models\Patient::factory()->state([
-            'appointment_at' => Carbon::today('UTC')->format('Y-m-d 00:00:00'),
-        ])->create();
-
-        // Minimal guaranteed SMS message for debugging
-        $patient = $patients->first() ?? \App\Models\Patient::factory()->create();
-        $sms = \App\Models\SmsMessage::create([
-            'content' => 'Test SMS',
-            'status' => 'pending',
-            'sent_at' => Carbon::today('UTC')->format('Y-m-d 00:00:00'),
-        ]);
-        $sms->patients()->syncWithoutDetaching([$patient->id]);
+        foreach ($failedPatients as $patient) {
+            // Appointment at 11:00 AM today
+            $appointment = $now->copy()->setTime(11, 0, 0);
+            $patient->update(['appointment_at' => $appointment]);
+            // Sent at 10:45 AM
+            $sentAt = $appointment->copy()->subMinutes(15);
+            $sentSms = SmsMessage::create([
+                'content' => $message,
+                'status' => 'sent',
+                'sent_at' => $sentAt,
+            ]);
+            $sentSms->patients()->syncWithoutDetaching([$patient->id]);
+            // Failed at 10:46 AM
+            $failedAt = $sentAt->copy()->addMinute();
+            $failedSms = SmsMessage::create([
+                'content' => $message,
+                'status' => 'failed',
+                'sent_at' => $failedAt,
+            ]);
+            $failedSms->patients()->syncWithoutDetaching([$patient->id]);
+            $patient->update(['status' => 'failed', 'last_sent_at' => $failedAt]);
+        }
     }
 }
