@@ -9,9 +9,9 @@ uses(RefreshDatabase::class);
 it('prevents duplicate patient-sms relationships', function () {
     $patient = Patient::factory()->create();
     $sms = SmsMessage::factory()->create();
+    $sms->patients()->attach($patient->id);
+    $sms->patients()->syncWithoutDetaching($patient->id);
 
-    $patient->smsMessages()->syncWithoutDetaching([$sms->id]);
-    $patient->smsMessages()->syncWithoutDetaching([$sms->id]);
-
-    expect($patient->smsMessages()->count())->toBe(1);
+    expect($patient->smsMessagesMany()->count())->toBe(1);
+    expect($sms->patients->pluck('id'))->toContain($patient->id);
 }); 

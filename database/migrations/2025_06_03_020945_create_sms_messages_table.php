@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::create('sms_messages', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('patient_id')->constrained()->onDelete('cascade');
             $table->string('content');
             $table->string('status')->default('pending');
             $table->timestamp('sent_at')->nullable();

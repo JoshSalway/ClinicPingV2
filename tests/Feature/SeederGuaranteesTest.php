@@ -16,4 +16,5 @@ it('seeders guarantee at least one for each dashboard stat', function () {
     expect(SmsMessage::where('status', 'pending')->count())->toBeGreaterThan(0);
     expect(SmsMessage::whereDate('sent_at', Carbon::today('UTC'))->where('status', 'pending')->count())->toBeGreaterThan(0);
     expect(Patient::whereDate('appointment_at', Carbon::today('UTC'))->count())->toBeGreaterThan(0);
+    expect(SmsMessage::has('patients')->count())->toBeGreaterThan(0);
 }); 

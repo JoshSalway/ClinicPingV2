@@ -27,11 +27,18 @@ class Patient extends Model
 
     public function smsMessages()
     {
-        return $this->hasMany(SmsMessage::class);
+        return $this->belongsToMany(SmsMessage::class, 'patient_sms_message');
     }
 
     public function latestSmsMessage()
     {
-        return $this->hasOne(SmsMessage::class)->latestOfMany('sent_at');
+        return $this->belongsToMany(SmsMessage::class, 'patient_sms_message')
+            ->latest('sent_at')
+            ->first();
+    }
+
+    public function smsMessagesMany()
+    {
+        return $this->belongsToMany(SmsMessage::class, 'patient_sms_message');
     }
 }

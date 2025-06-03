@@ -11,7 +11,6 @@ class SmsMessage extends Model
     use HasFactory;
 
     protected $fillable = [
-        'patient_id',
         'content',
         'status',
         'sent_at'
@@ -24,5 +23,10 @@ class SmsMessage extends Model
     public function patient()
     {
         return $this->belongsTo(Patient::class);
+    }
+
+    public function patients()
+    {
+        return $this->belongsToMany(Patient::class, 'patient_sms_message');
     }
 }

@@ -36,22 +36,29 @@ class SmsMessageSeeder extends Seeder
             $offset = rand(10, 20); // minutes before appointment
             $sentAt = (clone $appointment)->subMinutes($offset);
             $sentSms = SmsMessage::create([
-                'patient_id' => $patient->id,
                 'content' => $message,
                 'status' => 'sent',
                 'sent_at' => $sentAt,
             ]);
+            $sentSms->patients()->attach($patient->id);
             $completedAt = (clone $sentAt)->addMinutes(rand(1, 5));
             $completedSms = SmsMessage::create([
-                'patient_id' => $patient->id,
                 'content' => $message,
                 'status' => 'completed',
                 'sent_at' => $completedAt,
             ]);
+            $completedSms->patients()->attach($patient->id);
             $patient->update(['status' => 'completed', 'last_sent_at' => $completedAt]);
         }
 
         foreach ($pendingPatients as $patient) {
+            // Create a pending SMS for today
+            $pendingSms = SmsMessage::create([
+                'content' => $message,
+                'status' => 'pending',
+                'sent_at' => Carbon::now(),
+            ]);
+            $pendingSms->patients()->attach($patient->id);
             $patient->update(['status' => 'pending', 'last_sent_at' => null]);
         }
 
@@ -71,18 +78,18 @@ class SmsMessageSeeder extends Seeder
             $offset = rand(10, 20); // minutes before appointment
             $sentAt = (clone $appointment)->subMinutes($offset);
             $sentSms = SmsMessage::create([
-                'patient_id' => $patient->id,
                 'content' => $message,
                 'status' => 'sent',
                 'sent_at' => $sentAt,
             ]);
+            $sentSms->patients()->attach($patient->id);
             $completedAt = (clone $sentAt)->addMinutes(rand(1, 5));
             $completedSms = SmsMessage::create([
-                'patient_id' => $patient->id,
                 'content' => $message,
                 'status' => 'completed',
                 'sent_at' => $completedAt,
             ]);
+            $completedSms->patients()->attach($patient->id);
             $patient->update(['status' => 'completed', 'last_sent_at' => $completedAt]);
         }
 
@@ -95,18 +102,18 @@ class SmsMessageSeeder extends Seeder
             $offset = rand(10, 20); // minutes before appointment
             $sentAt = (clone $appointment)->subMinutes($offset);
             $sentSms = SmsMessage::create([
-                'patient_id' => $patient->id,
                 'content' => $message,
                 'status' => 'sent',
                 'sent_at' => $sentAt,
             ]);
+            $sentSms->patients()->attach($patient->id);
             $failedAt = (clone $sentAt)->addMinutes(rand(1, 5));
             $failedSms = SmsMessage::create([
-                'patient_id' => $patient->id,
                 'content' => $message,
                 'status' => 'failed',
                 'sent_at' => $failedAt,
             ]);
+            $failedSms->patients()->attach($patient->id);
             $patient->update(['status' => 'failed', 'last_sent_at' => $failedAt]);
         }
     }

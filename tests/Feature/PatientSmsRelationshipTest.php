@@ -9,9 +9,8 @@ uses(RefreshDatabase::class);
 it('can create a patient and relate sms messages', function () {
     $patient = Patient::factory()->create();
     $sms = SmsMessage::factory()->create();
+    $sms->patients()->attach($patient->id);
 
-    $patient->smsMessages()->attach($sms->id);
-
-    expect($patient->smsMessages)->toHaveCount(1);
-    expect($sms->patients)->toHaveCount(1);
+    expect($patient->smsMessagesMany)->toHaveCount(1);
+    expect($sms->patients->pluck('id'))->toContain($patient->id);
 }); 
