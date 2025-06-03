@@ -22,7 +22,9 @@ export default function Dashboard() {
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Dashboard" />
+            <Head title="Dashboard">
+                <meta name="description" content="View patient stats, pending forms today, and manage appointments in ClinicPing." />
+            </Head>
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4 bg-background text-foreground">
                 {/* Stats Cards */}
                 <DashboardStats
