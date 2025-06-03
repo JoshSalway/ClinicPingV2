@@ -4,6 +4,9 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import AddPatientModal from '@/components/patients/AddPatientModal';
+import StatusBadge from './status-badge';
+
+type StatusType = 'completed' | 'sent' | 'pending' | 'failed';
 
 interface Patient {
   id: number;
@@ -13,7 +16,7 @@ interface Patient {
   email?: string;
   appointment_date?: string;
   appointment_time?: string;
-  status?: string;
+  status: StatusType;
 }
 
 interface PatientApiResponse {
@@ -50,7 +53,7 @@ export default function PatientTable() {
         <AddPatientModal />
       </div>
       {/* Search and Filter Controls */}
-      <div className="px-6 py-4 border-b border-gray-200 dark:border-neutral-800 bg-gray-50 dark:bg-neutral-800 flex flex-col md:flex-row gap-4 md:items-center md:justify-between">
+      <div className="px-6 py-4 border-b border-gray-200 dark:border-neutral-800 bg-gray-50 dark:bg-transparent flex flex-col md:flex-row gap-4 md:items-center md:justify-between">
         <Input
           placeholder="Search by name or phone..."
           value={search}
@@ -89,7 +92,7 @@ export default function PatientTable() {
           <div className="p-8 text-center text-red-500">Failed to load patients.</div>
         ) : (
           <table className="min-w-full divide-y divide-gray-200 dark:divide-neutral-800">
-            <thead className="bg-gray-50 dark:bg-neutral-800">
+            <thead className="bg-gray-50 dark:bg-transparent">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Patient</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Contact</th>
@@ -144,14 +147,12 @@ export default function PatientTable() {
                       }
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-300">
-                        {patient.status || 'N/A'}
-                      </span>
+                      <StatusBadge status={patient.status || 'pending'} />
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
                       <Button 
                         size="sm" 
-                        className="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white"
+                        className="bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-md dark:bg-blue-500 dark:hover:bg-blue-400"
                       >
                         <svg 
                           xmlns="http://www.w3.org/2000/svg" 

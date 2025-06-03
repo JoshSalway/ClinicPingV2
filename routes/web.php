@@ -2,6 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use App\Models\Patient;
+use Illuminate\Support\Facades\DB;
 
 Route::get('/', function () {
     return Inertia::render('welcome');
@@ -9,7 +11,17 @@ Route::get('/', function () {
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', function () {
-        return Inertia::render('dashboard');
+        $totalPatients = Patient::count();
+        $formsSentToday = DB::table('sms_messages')->whereDate('sent_at', today())->count();
+        $pendingForms = DB::table('sms_messages')->where('status', 'pending')->count();
+        $todaysAppointments = Patient::whereDate('appointment_at', today())->count();
+
+        return Inertia::render('dashboard', [
+            'totalPatients' => $totalPatients,
+            'formsSentToday' => $formsSentToday,
+            'pendingForms' => $pendingForms,
+            'todaysAppointments' => $todaysAppointments,
+        ]);
     })->name('dashboard');
 });
 

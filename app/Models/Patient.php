@@ -9,4 +9,9 @@ class Patient extends Model
 {
     use HasFactory;
     //
+
+    public function smsMessages()
+    {
+        return $this->belongsToMany(SmsMessage::class, 'patient_sms_message');
+    }
 }

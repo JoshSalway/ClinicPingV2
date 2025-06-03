@@ -1,6 +1,6 @@
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
-import { Head } from '@inertiajs/react';
+import { Head, usePage } from '@inertiajs/react';
 import DashboardStats from '@/components/dashboard-stats';
 import AddPatientModal from '@/components/patients/AddPatientModal';
 import PatientTable from '@/components/patients/patient-table';
@@ -13,16 +13,23 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function Dashboard() {
+    const { totalPatients, formsSentToday, pendingForms, todaysAppointments } = usePage().props as {
+        totalPatients: number;
+        formsSentToday: number;
+        pendingForms: number;
+        todaysAppointments: number;
+    };
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Dashboard" />
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4 bg-background text-foreground">
                 {/* Stats Cards */}
                 <DashboardStats
-                    totalPatients={5}
-                    formsSentToday={3}
-                    pendingForms={1}
-                    todaysAppointments={0}
+                    totalPatients={totalPatients}
+                    formsSentToday={formsSentToday}
+                    pendingForms={pendingForms}
+                    todaysAppointments={todaysAppointments}
                 />
 
                 {/* Patient Table */}

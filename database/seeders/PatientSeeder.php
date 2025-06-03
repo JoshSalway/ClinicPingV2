@@ -17,17 +17,6 @@ class PatientSeeder extends Seeder
         $patients = collect();
         $today = now()->format('Y-m-d');
 
-        // Helper to generate phone numbers by country
-        function randomPhone($faker, $country) {
-            if ($country === 'AU') {
-                return '+61 4' . $faker->numberBetween(10, 99) . ' ' . $faker->numberBetween(100, 999) . ' ' . $faker->numberBetween(100, 999);
-            } elseif ($country === 'CO') {
-                return '+57 3' . $faker->numberBetween(10, 99) . ' ' . $faker->numberBetween(100, 999) . ' ' . $faker->numberBetween(1000, 9999);
-            } else {
-                return '+1 ' . $faker->numberBetween(200, 999) . '-' . $faker->numberBetween(200, 999) . '-' . $faker->numberBetween(1000, 9999);
-            }
-        }
-
         $auCount = (int)round($total * 0.45);
         $coCount = (int)round($total * 0.45);
         $usCount = $total - $auCount - $coCount;
@@ -42,8 +31,18 @@ class PatientSeeder extends Seeder
             $country = array_pop($countryPool);
             Patient::factory()->create([
                 'appointment_at' => $faker->optional()->dateTimeBetween('-2 weeks', '+2 weeks'),
-                'phone' => randomPhone($faker, $country),
+                'phone' => $this->randomPhone($faker, $country),
             ]);
+        }
+    }
+
+    private function randomPhone($faker, $country) {
+        if ($country === 'AU') {
+            return '+61 4' . $faker->numberBetween(10, 99) . ' ' . $faker->numberBetween(100, 999) . ' ' . $faker->numberBetween(100, 999);
+        } elseif ($country === 'CO') {
+            return '+57 3' . $faker->numberBetween(10, 99) . ' ' . $faker->numberBetween(100, 999) . ' ' . $faker->numberBetween(1000, 9999);
+        } else {
+            return '+1 ' . $faker->numberBetween(200, 999) . '-' . $faker->numberBetween(200, 999) . '-' . $faker->numberBetween(1000, 9999);
         }
     }
 } 

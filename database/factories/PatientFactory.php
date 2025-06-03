@@ -24,4 +24,11 @@ class PatientFactory extends Factory
             'status' => $this->faker->randomElement(['pending', 'sent', 'completed', 'failed']),
         ];
     }
+
+    public function appointmentToday()
+    {
+        return $this->state([
+            'appointment_at' => now(),
+        ]);
+    }
 } 
