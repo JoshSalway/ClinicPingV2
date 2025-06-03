@@ -50,15 +50,15 @@ export default function SendSmsModal({ open, onOpenChange, patient, onSent }: Se
           <DialogTitle>Send SMS Form</DialogTitle>
         </DialogHeader>
         {patient && (
-          <div className="mb-4 bg-gray-50 rounded-lg p-4">
+          <div className="mb-4 bg-gray-50 rounded-lg p-4 dark:bg-neutral-800">
             <div className="mb-2">
-              <div className="text-xs text-gray-500">Recipient</div>
-              <div className="font-semibold text-lg">{patient.first_name} {patient.last_name}</div>
-              <div className="text-gray-500 text-sm">{patient.phone}</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">Recipient</div>
+              <div className="font-semibold text-lg dark:text-white">{patient.first_name} {patient.last_name}</div>
+              <div className="text-gray-500 text-sm dark:text-gray-400">{patient.phone}</div>
             </div>
             <div>
-              <div className="text-xs text-gray-500 mb-1">Message Preview</div>
-              <div className="bg-white border rounded p-2 text-sm">{message}</div>
+              <div className="text-xs text-gray-500 mb-1 dark:text-gray-400">Message Preview</div>
+              <div className="bg-white border rounded p-2 text-sm dark:bg-neutral-900 dark:text-white dark:border-neutral-700">{message}</div>
             </div>
           </div>
         )}
