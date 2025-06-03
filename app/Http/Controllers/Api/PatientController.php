@@ -12,21 +12,39 @@ class PatientController extends Controller
     {
         $query = Patient::query();
 
-        if ($search = $request->input('search')) {
-            $query->where(function($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('phone', 'like', "%{$search}%");
-            });
+        // Today's appointments filter (default true)
+        $todayOnly = $request->input('today_only', 'true') === 'true';
+        if ($todayOnly) {
+            $query->whereDate('appointment_at', today());
         }
 
+        // Status filter
         if ($status = $request->input('status')) {
             if ($status !== 'all') {
                 $query->where('status', $status);
             }
         }
 
-        $sortBy = $request->input('sortBy', 'name');
-        $query->orderBy($sortBy);
+        // Sorting and filtering for last_sent
+        if ($request->input('sortBy') === 'last_sent') {
+            $query->whereNotNull('last_sent_at');
+            $query->orderBy('last_sent_at', 'desc');
+        } else {
+            // Sorting
+            $sortBy = $request->input('sortBy', 'appointment_at');
+            $sortDir = $request->input('sortDir', 'asc');
+            $query->orderBy($sortBy, $sortDir);
+        }
+
+        // Search by name or phone (normalize phone for AU)
+        if ($search = $request->input('search')) {
+            $query->where(function($q) use ($search) {
+                $normalizedSearch = preg_replace('/\D+/', '', $search);
+                $q->whereRaw("LOWER(first_name) like ?", ["%".strtolower($search)."%"])
+                  ->orWhereRaw("LOWER(last_name) like ?", ["%".strtolower($search)."%"])
+                  ->orWhereRaw("substr(REPLACE(REPLACE(REPLACE(phone, '+61', '0'), ' ', ''), '-', ''), -9) = ?", [substr($normalizedSearch, -9)]);
+            });
+        }
 
         $patients = $query->paginate(10);
 

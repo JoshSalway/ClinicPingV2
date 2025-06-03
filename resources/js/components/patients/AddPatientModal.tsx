@@ -8,7 +8,8 @@ import { useState } from 'react';
 export default function AddPatientModal() {
   const [open, setOpen] = useState(false);
   const { data, setData, processing, errors, reset } = useForm({
-    name: '',
+    first_name: '',
+    last_name: '',
     phone: '',
     email: '',
     appointment_date: '',
@@ -45,18 +46,32 @@ export default function AddPatientModal() {
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <Label htmlFor="name">Name</Label>
-            <Input
-              id="name"
-              value={data.name}
-              onChange={e => setData('name', e.target.value)}
-              required
-              autoFocus
-              placeholder="Full name"
-              disabled={processing}
-            />
-            {errors.name && <div className="text-destructive text-sm mt-1">{errors.name}</div>}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="first_name">First Name</Label>
+              <Input
+                id="first_name"
+                value={data.first_name}
+                onChange={e => setData('first_name', e.target.value)}
+                required
+                autoFocus
+                placeholder="First name"
+                disabled={processing}
+              />
+              {errors.first_name && <div className="text-destructive text-sm mt-1">{errors.first_name}</div>}
+            </div>
+            <div>
+              <Label htmlFor="last_name">Last Name</Label>
+              <Input
+                id="last_name"
+                value={data.last_name}
+                onChange={e => setData('last_name', e.target.value)}
+                required
+                placeholder="Last name"
+                disabled={processing}
+              />
+              {errors.last_name && <div className="text-destructive text-sm mt-1">{errors.last_name}</div>}
+            </div>
           </div>
           <div>
             <Label htmlFor="phone">Phone</Label>

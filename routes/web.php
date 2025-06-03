@@ -13,7 +13,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', function () {
         $totalPatients = Patient::count();
         $formsSentToday = DB::table('sms_messages')->whereDate('sent_at', today())->count();
-        $pendingForms = DB::table('sms_messages')->where('status', 'pending')->count();
+        $pendingForms = Patient::where(function ($q) {
+            $q->whereHas('latestSmsMessage', function ($q2) {
+                $q2->where('status', 'pending');
+            })->orWhereDoesntHave('latestSmsMessage');
+        })->count();
         $todaysAppointments = Patient::whereDate('appointment_at', today())->count();
 
         return Inertia::render('dashboard', [

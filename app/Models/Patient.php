@@ -20,8 +20,18 @@ class Patient extends Model
         'status',
     ];
 
+    protected $casts = [
+        'appointment_at' => 'datetime',
+        'last_sent_at' => 'datetime',
+    ];
+
     public function smsMessages()
     {
-        return $this->belongsToMany(SmsMessage::class, 'patient_sms_message');
+        return $this->hasMany(SmsMessage::class);
+    }
+
+    public function latestSmsMessage()
+    {
+        return $this->hasOne(SmsMessage::class)->latestOfMany('sent_at');
     }
 }

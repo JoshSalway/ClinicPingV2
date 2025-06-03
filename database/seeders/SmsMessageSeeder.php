@@ -16,7 +16,44 @@ class SmsMessageSeeder extends Seeder
     public function run(): void
     {
         $message = 'Please complete your medical history form: [form link]';
-        $now = now();
+        $today = now()->format('Y-m-d');
+
+        // Get all patients with today's appointment, sorted by time
+        $todaysPatients = Patient::whereDate('appointment_at', $today)
+            ->orderBy('appointment_at')
+            ->get();
+
+        // First 3: completed, rest: pending
+        $completedPatients = $todaysPatients->take(3);
+        $pendingPatients = $todaysPatients->slice(3);
+
+        foreach ($completedPatients as $patient) {
+            $appointment = $patient->appointment_at;
+            if (!$appointment) {
+                $appointment = now()->setTime(11, 0, 0);
+                $patient->update(['appointment_at' => $appointment]);
+            }
+            $offset = rand(10, 20); // minutes before appointment
+            $sentAt = (clone $appointment)->subMinutes($offset);
+            $sentSms = SmsMessage::create([
+                'patient_id' => $patient->id,
+                'content' => $message,
+                'status' => 'sent',
+                'sent_at' => $sentAt,
+            ]);
+            $completedAt = (clone $sentAt)->addMinutes(rand(1, 5));
+            $completedSms = SmsMessage::create([
+                'patient_id' => $patient->id,
+                'content' => $message,
+                'status' => 'completed',
+                'sent_at' => $completedAt,
+            ]);
+            $patient->update(['status' => 'completed', 'last_sent_at' => $completedAt]);
+        }
+
+        foreach ($pendingPatients as $patient) {
+            $patient->update(['status' => 'pending', 'last_sent_at' => null]);
+        }
 
         // Get 20 random patients with status 'sent'
         $smsPatients = Patient::where('status', 'sent')->inRandomOrder()->take(20)->get();
@@ -26,48 +63,50 @@ class SmsMessageSeeder extends Seeder
         $failedPatients = $smsPatients->slice($completedCount, $failedCount);
 
         foreach ($completedPatients as $patient) {
-            // Appointment at 11:00 AM today
-            $appointment = $now->copy()->setTime(11, 0, 0);
-            $patient->update(['appointment_at' => $appointment]);
-            // Sent at 10:45 AM
-            $sentAt = $appointment->copy()->subMinutes(15);
+            $appointment = $patient->appointment_at;
+            if (!$appointment) {
+                $appointment = now()->setTime(11, 0, 0);
+                $patient->update(['appointment_at' => $appointment]);
+            }
+            $offset = rand(10, 20); // minutes before appointment
+            $sentAt = (clone $appointment)->subMinutes($offset);
             $sentSms = SmsMessage::create([
+                'patient_id' => $patient->id,
                 'content' => $message,
                 'status' => 'sent',
                 'sent_at' => $sentAt,
             ]);
-            $sentSms->patients()->syncWithoutDetaching([$patient->id]);
-            // Completed at 10:46 AM
-            $completedAt = $sentAt->copy()->addMinute();
+            $completedAt = (clone $sentAt)->addMinutes(rand(1, 5));
             $completedSms = SmsMessage::create([
+                'patient_id' => $patient->id,
                 'content' => $message,
                 'status' => 'completed',
                 'sent_at' => $completedAt,
             ]);
-            $completedSms->patients()->syncWithoutDetaching([$patient->id]);
             $patient->update(['status' => 'completed', 'last_sent_at' => $completedAt]);
         }
 
         foreach ($failedPatients as $patient) {
-            // Appointment at 11:00 AM today
-            $appointment = $now->copy()->setTime(11, 0, 0);
-            $patient->update(['appointment_at' => $appointment]);
-            // Sent at 10:45 AM
-            $sentAt = $appointment->copy()->subMinutes(15);
+            $appointment = $patient->appointment_at;
+            if (!$appointment) {
+                $appointment = now()->setTime(11, 0, 0);
+                $patient->update(['appointment_at' => $appointment]);
+            }
+            $offset = rand(10, 20); // minutes before appointment
+            $sentAt = (clone $appointment)->subMinutes($offset);
             $sentSms = SmsMessage::create([
+                'patient_id' => $patient->id,
                 'content' => $message,
                 'status' => 'sent',
                 'sent_at' => $sentAt,
             ]);
-            $sentSms->patients()->syncWithoutDetaching([$patient->id]);
-            // Failed at 10:46 AM
-            $failedAt = $sentAt->copy()->addMinute();
+            $failedAt = (clone $sentAt)->addMinutes(rand(1, 5));
             $failedSms = SmsMessage::create([
+                'patient_id' => $patient->id,
                 'content' => $message,
                 'status' => 'failed',
                 'sent_at' => $failedAt,
             ]);
-            $failedSms->patients()->syncWithoutDetaching([$patient->id]);
             $patient->update(['status' => 'failed', 'last_sent_at' => $failedAt]);
         }
     }
