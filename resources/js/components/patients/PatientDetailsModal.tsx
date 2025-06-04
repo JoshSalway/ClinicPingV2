@@ -58,12 +58,14 @@ export default function PatientDetailsModal({ open, onOpenChange, patientId, onC
   }, [open, patientId]);
 
   const smsMessages = patient?.sms_messages || [];
-  const totalPages = Math.ceil(smsMessages.length / SMS_PER_PAGE);
-  const paginatedSms = smsMessages.slice((page - 1) * SMS_PER_PAGE, page * SMS_PER_PAGE);
+  // Sort messages by sent_at descending (most recent first)
+  const sortedSms = [...smsMessages].sort((a, b) => new Date(b.sent_at).getTime() - new Date(a.sent_at).getTime());
+  const totalPages = Math.ceil(sortedSms.length / SMS_PER_PAGE);
+  const paginatedSms = sortedSms.slice((page - 1) * SMS_PER_PAGE, page * SMS_PER_PAGE);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg">
+      <DialogContent className="max-w-lg" aria-describedby="patient-details-description">
         <DialogHeader>
           <DialogTitle>Patient Details</DialogTitle>
         </DialogHeader>
@@ -87,21 +89,29 @@ export default function PatientDetailsModal({ open, onOpenChange, patientId, onC
               </div>
               <div className="text-gray-500 text-sm">Last Sent: {patient.last_sent_at ? new Date(patient.last_sent_at).toLocaleString('en-AU', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true }) : 'Never'}</div>
             </div>
-            {/* SMS History Card */}
+            {/* Form History Card */}
             <div className="rounded-lg border bg-white dark:bg-neutral-900 p-4 shadow-sm">
-              <div className="font-semibold mb-2">SMS History</div>
+              <div className="font-semibold mb-2">Form History</div>
               {smsMessages.length === 0 ? (
-                <div className="text-gray-400 text-sm">No SMS history available.</div>
+                <div className="text-gray-400 text-sm">No form history available.</div>
               ) : (
                 <>
                   <ul className="space-y-3 mb-4">
-                    {paginatedSms.map(sms => (
+                    {paginatedSms.filter(sms => sms.status === 'sent' || sms.status === 'completed').map(sms => (
                       <li key={sms.id} className="border rounded p-3 bg-gray-50 dark:bg-neutral-800">
                         <div className="flex items-center justify-between mb-1">
-                          <span className="text-xs text-gray-500">{new Date(sms.sent_at).toLocaleString()}</span>
+                          <span className="text-xs text-gray-500">{new Date(sms.sent_at).toLocaleString('en-AU', { day: '2-digit', month: 'short', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true })}</span>
                           <StatusBadge status={['completed', 'sent', 'pending', 'failed'].includes(sms.status) ? (sms.status as StatusType) : 'pending'} />
                         </div>
-                        <div className="text-sm text-gray-900 dark:text-white">{sms.content}</div>
+                        {sms.status === 'sent' && (
+                          <>
+                            <div className="text-xs text-gray-500 mb-1">Sent to: {patient.phone}</div>
+                            <div className="text-sm text-gray-900 dark:text-white">{sms.content}</div>
+                          </>
+                        )}
+                        {sms.status === 'completed' && (
+                          <div className="text-sm text-green-700 dark:text-green-300 font-semibold">Form completed</div>
+                        )}
                       </li>
                     ))}
                   </ul>

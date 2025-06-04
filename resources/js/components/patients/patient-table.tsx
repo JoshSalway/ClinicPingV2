@@ -8,6 +8,12 @@ import StatusBadge from './status-badge';
 import SendSmsModal from './SendSmsModal';
 import PatientDetailsModal from './PatientDetailsModal';
 
+interface SmsMessage {
+  id: number;
+  status: string;
+  sent_at: string;
+}
+
 type StatusType = 'completed' | 'sent' | 'pending' | 'failed';
 
 interface Patient {
@@ -20,6 +26,7 @@ interface Patient {
   appointment_time?: string;
   status: StatusType;
   last_sent_at?: string;
+  sms_messages?: SmsMessage[];
 }
 
 interface PatientApiResponse {
@@ -257,35 +264,38 @@ export default function PatientTable() {
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
                         <Button
                           size="sm"
-                          className="bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-md dark:bg-blue-500 dark:hover:bg-blue-400"
+                          className={secondsLeft > 0
+                            ? "bg-red-600 text-white font-semibold rounded-md cursor-not-allowed opacity-80"
+                            : "bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-md dark:bg-blue-500 dark:hover:bg-blue-400"}
                           onClick={() => {
-                            setSelectedPatient(patient);
-                            setSmsModalOpen(true);
+                            if (secondsLeft === 0) {
+                              setSelectedPatient(patient);
+                              setSmsModalOpen(true);
+                            }
                           }}
                           disabled={secondsLeft > 0}
                         >
-                          {secondsLeft > 0 ? (
-                            <span>{secondsLeft}s</span>
-                          ) : (
-                            <>
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="24"
-                                height="24"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                className="h-4 w-4 mr-1"
-                              >
-                                <path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z"></path>
-                                <path d="m21.854 2.147-10.94 10.939"></path>
-                              </svg>
-                              SMS Form
-                            </>
-                          )}
+                          {secondsLeft > 0
+                            ? `Retry send SMS form in ${secondsLeft}s`
+                            : <>
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  width="24"
+                                  height="24"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth="2"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  className="h-4 w-4 mr-1"
+                                >
+                                  <path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z"></path>
+                                  <path d="m21.854 2.147-10.94 10.939"></path>
+                                </svg>
+                                SMS Form
+                              </>
+                          }
                         </Button>
                         <Button 
                           size="sm" 
@@ -357,6 +367,7 @@ export default function PatientTable() {
             setCooldowns(prev => ({ ...prev, [selectedPatient.id]: Date.now() + 60000 }));
             setSelectedPatient(null);
           }}
+          smsMessages={selectedPatient.sms_messages || []}
         />
       )}
       {selectedPatientId && (

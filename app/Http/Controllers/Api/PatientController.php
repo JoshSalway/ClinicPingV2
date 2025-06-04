@@ -48,13 +48,15 @@ class PatientController extends Controller
 
         $patients = $query->paginate(10);
 
-        // Transform data to include appointment_date and appointment_time
+        // Transform data to include appointment_date, appointment_time, and sms_messages
         $patients->getCollection()->transform(function ($patient) {
             $appointment_at = $patient->appointment_at;
             $date = $appointment_at ? date('Y-m-d', strtotime($appointment_at)) : null;
             $time = $appointment_at ? date('H:i', strtotime($appointment_at)) : null;
             $patient->appointment_date = $date;
             $patient->appointment_time = $time;
+            // Add sms_messages (id, status, sent_at)
+            $patient->sms_messages = $patient->smsMessages()->orderByDesc('sent_at')->get(['id', 'status', 'sent_at']);
             return $patient;
         });
 

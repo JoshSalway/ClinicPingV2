@@ -1,7 +1,14 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
+
+// Add prop for smsMessages
+interface SmsMessage {
+  id: number;
+  status: string;
+  sent_at: string;
+}
 
 interface SendSmsModalProps {
   open: boolean;
@@ -13,15 +20,28 @@ interface SendSmsModalProps {
     phone: string;
   } | null;
   onSent: () => void;
+  smsMessages?: SmsMessage[]; // optional, for warning
 }
 
-export default function SendSmsModal({ open, onOpenChange, patient, onSent }: SendSmsModalProps) {
+export default function SendSmsModal({ open, onOpenChange, patient, onSent, smsMessages = [] }: SendSmsModalProps) {
   const [loading, setLoading] = useState(false);
   const { addToast } = useToast();
   const message = 'Please complete your medical history form: [form link]';
+  const [warnConfirmed, setWarnConfirmed] = useState(false);
+
+  // Check if a form was sent or completed today
+  const today = new Date().toISOString().slice(0, 10);
+  const sentOrCompletedToday = smsMessages.some(sms =>
+    (sms.status === 'sent' || sms.status === 'completed') &&
+    sms.sent_at && sms.sent_at.slice(0, 10) === today
+  );
 
   async function handleSend() {
     if (!patient) return;
+    // If warning needed and not confirmed, show warning
+    if (sentOrCompletedToday && !warnConfirmed) {
+      return;
+    }
     setLoading(true);
     try {
       const res = await fetch('/api/sms/send', {
@@ -40,6 +60,7 @@ export default function SendSmsModal({ open, onOpenChange, patient, onSent }: Se
       addToast({ id: Math.random().toString(36), type: 'error', title: 'Failed to send SMS', description: e.message });
     } finally {
       setLoading(false);
+      setWarnConfirmed(false);
     }
   }
 
@@ -62,11 +83,22 @@ export default function SendSmsModal({ open, onOpenChange, patient, onSent }: Se
             </div>
           </div>
         )}
+        {/* Warning Dialog */}
+        {sentOrCompletedToday && !warnConfirmed && (
+          <div className="mb-4 p-3 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-800 rounded">
+            <div className="font-semibold mb-1">Warning</div>
+            <div>A form was already sent or completed for this patient today. Are you sure you want to send another form?</div>
+            <div className="flex gap-2 mt-3">
+              <Button variant="outline" onClick={() => { onOpenChange(false); }} disabled={loading}>Cancel</Button>
+              <Button onClick={() => { setWarnConfirmed(true); }} disabled={loading} className="bg-yellow-600 text-white hover:bg-yellow-700">Send Anyway</Button>
+            </div>
+          </div>
+        )}
         <DialogFooter>
           <DialogClose asChild>
             <Button variant="outline" disabled={loading}>Cancel</Button>
           </DialogClose>
-          <Button onClick={handleSend} disabled={loading || !patient}>
+          <Button onClick={handleSend} disabled={loading || !patient || (sentOrCompletedToday && !warnConfirmed)}>
             {loading ? 'Sending...' : 'Confirm & Send'}
           </Button>
         </DialogFooter>

@@ -42,7 +42,7 @@ export default function AddPatientModal() {
         <DialogHeader>
           <DialogTitle>Add Patient</DialogTitle>
           <DialogDescription>
-            Enter patient details below to add them to your clinic.
+            Enter patient details below
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -80,7 +80,7 @@ export default function AddPatientModal() {
               value={data.phone}
               onChange={e => setData('phone', e.target.value)}
               required
-              placeholder="(555) 123-4567"
+              placeholder="+61 412 345 678"
               disabled={processing}
             />
             {errors.phone && <div className="text-destructive text-sm mt-1">{errors.phone}</div>}
