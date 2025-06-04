@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Patient;
 use Illuminate\Database\Seeder;
 use Carbon\Carbon;
+use Faker\Factory as Faker;
 
 class PatientSeeder extends Seeder
 {
@@ -13,7 +14,7 @@ class PatientSeeder extends Seeder
         // Console log the seeder is running
         \Log::info('PatientSeeder is running');
 
-        $faker = \Faker\Factory::create();
+        $faker = Faker::create();
         $total = 100;
         $patients = collect();
         $sydneyTz = new \DateTimeZone('Australia/Sydney');
