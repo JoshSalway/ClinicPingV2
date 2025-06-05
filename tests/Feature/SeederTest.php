@@ -102,4 +102,13 @@ it('creates SMS messages with correct timing relative to appointments', function
             expect($sentSms->sent_at->diffInMinutes($completedSms->sent_at))->toBeLessThanOrEqual(5);
         }
     }
+});
+
+test('all seeders using Faker have the correct import', function () {
+    $seederPath = base_path('database/seeders/PatientSeeder.php');
+    $contents = file_get_contents($seederPath);
+    expect($contents)->toContain('use Faker\\Factory');
+    expect($contents)->not->toContain('new \\Faker\\Factory');
+    expect($contents)->not->toContain('\\Faker\\Factory::create()'); // Should be aliased
+    expect($contents)->toContain('FakerFactory::create()');
 }); 

@@ -6,6 +6,7 @@ use App\Models\Patient;
 use Illuminate\Database\Seeder;
 use Carbon\Carbon;
 use App\Models\User;
+use Faker\Factory as FakerFactory;
 
 class PatientSeeder extends Seeder
 {
@@ -97,7 +98,7 @@ class PatientSeeder extends Seeder
     }
 
     private function randomPhone($country) {
-        $faker = \Faker\Factory::create();
+        $faker = FakerFactory::create();
         if ($country === 'AU') {
             return '+61 4' . $faker->numberBetween(10, 99) . ' ' . $faker->numberBetween(100, 999) . ' ' . $faker->numberBetween(100, 999);
         } elseif ($country === 'CO') {
