@@ -14,11 +14,12 @@ Route::get('/', function () {
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', function () {
         $userId = Auth::id();
+        $sydneyToday = \Carbon\Carbon::now('Australia/Sydney')->format('Y-m-d');
         $totalPatients = \App\Models\Patient::where('user_id', $userId)->count();
         $formsSentToday = \App\Models\SmsMessage::whereHas('patients', function($q) use ($userId) {
             $q->where('user_id', $userId);
-        })->whereDate('sent_at', today())->count();
-        $todaysAppointments = \App\Models\Patient::where('user_id', $userId)->whereDate('appointment_at', today())->count();
+        })->whereDate('sent_at', $sydneyToday)->count();
+        $todaysAppointments = \App\Models\Patient::where('user_id', $userId)->whereDate('appointment_at', $sydneyToday)->count();
 
         // Subquery: latest sent_at per patient for this user
         $latestSmsSub = DB::table('patient_sms_message as psm')
