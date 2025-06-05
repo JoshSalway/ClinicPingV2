@@ -8,6 +8,7 @@ use App\Models\Patient;
 use App\Models\SmsMessage;
 use Carbon\Carbon;
 use App\Helpers\PatientStatusHelper;
+use App\Models\User;
 
 class SmsMessageSeeder extends Seeder
 {
@@ -48,6 +49,7 @@ class SmsMessageSeeder extends Seeder
                 'sent_at' => $completedAt,
             ]);
             $completedSms->patients()->attach($patient->id);
+            $patient->refresh();
             $patient->update([
                 'status' => PatientStatusHelper::getStatus($patient),
                 'last_sent_at' => $completedAt,
@@ -66,6 +68,7 @@ class SmsMessageSeeder extends Seeder
                 'sent_at' => $sentAt,
             ]);
             $sentSms->patients()->attach($patient->id);
+            $patient->refresh();
             $patient->update([
                 'status' => PatientStatusHelper::getStatus($patient),
                 'last_sent_at' => $sentAt,
@@ -82,6 +85,7 @@ class SmsMessageSeeder extends Seeder
                 'sent_at' => $appointment,
             ]);
             $pendingSms->patients()->attach($patient->id);
+            $patient->refresh();
             $patient->update([
                 'status' => PatientStatusHelper::getStatus($patient),
                 'last_sent_at' => null,
@@ -99,6 +103,122 @@ class SmsMessageSeeder extends Seeder
                 ]);
                 $randomPatient = Patient::inRandomOrder()->first();
                 $sms->patients()->attach($randomPatient->id);
+            }
+        }
+    }
+
+    public static function seedForUser(User $user)
+    {
+        $seeder = new static();
+        $seeder->runForUser($user);
+    }
+
+    public function runForUser(User $user)
+    {
+        $message = 'Please complete your medical history form: [form link]';
+        $today = now()->format('Y-m-d');
+        $todaysPatients = Patient::where('user_id', $user->id)
+            ->whereDate('appointment_at', $today)
+            ->orderBy('appointment_at')
+            ->get();
+        // Assign statuses in order: 3 completed, 3 sent, rest pending
+        $completedPatients = $todaysPatients->slice(0, 3);
+        $sentPatients = $todaysPatients->slice(3, 3);
+        $pendingPatients = $todaysPatients->slice(6);
+        // Helper functions for clarity
+        $createSentSms = function($patient, $appointment) use ($message) {
+            $sentAt = (clone $appointment)->subMinutes(rand(10, 30));
+            $sentSms = SmsMessage::factory()->create([
+                'content' => $message,
+                'status' => 'sent',
+                'sent_at' => $sentAt,
+            ]);
+            $sentSms->patients()->attach($patient->id);
+            return $sentAt;
+        };
+        $createCompletedSms = function($patient, $afterTime) use ($message) {
+            $completedAt = (clone $afterTime)->addMinutes(rand(1, 10));
+            $completedSms = SmsMessage::factory()->create([
+                'content' => $message,
+                'status' => 'completed',
+                'sent_at' => $completedAt,
+            ]);
+            $completedSms->patients()->attach($patient->id);
+            return $completedAt;
+        };
+        $createPendingSms = function($patient, $appointment) use ($message) {
+            $pendingSms = SmsMessage::factory()->create([
+                'content' => $message,
+                'status' => 'pending',
+                'sent_at' => $appointment,
+            ]);
+            $pendingSms->patients()->attach($patient->id);
+        };
+        // Completed: sent + completed
+        foreach ($completedPatients as $patient) {
+            $appointment = $patient->appointment_at;
+            $sentAt = $createSentSms($patient, $appointment);
+            $completedAt = $createCompletedSms($patient, $sentAt);
+            $patient->refresh();
+            $patient->update([
+                'status' => PatientStatusHelper::getStatus($patient),
+                'last_sent_at' => $completedAt,
+            ]);
+        }
+        // Sent only
+        foreach ($sentPatients as $patient) {
+            $appointment = $patient->appointment_at;
+            $sentAt = $createSentSms($patient, $appointment);
+            $patient->refresh();
+            $patient->update([
+                'status' => PatientStatusHelper::getStatus($patient),
+                'last_sent_at' => $sentAt,
+            ]);
+        }
+        // Pending only
+        foreach ($pendingPatients as $patient) {
+            $appointment = $patient->appointment_at;
+            $createPendingSms($patient, $appointment);
+            $patient->refresh();
+            $patient->update([
+                'status' => PatientStatusHelper::getStatus($patient),
+                'last_sent_at' => null,
+            ]);
+        }
+        // Assign one failed patient on another day
+        $failedPatient = Patient::where('user_id', $user->id)
+            ->whereDate('appointment_at', '!=', $today)
+            ->inRandomOrder()
+            ->first();
+        if ($failedPatient) {
+            $appointment = $failedPatient->appointment_at;
+            $sentAt = $createSentSms($failedPatient, $appointment);
+            $failedAt = (clone $sentAt)->addMinutes(rand(5, 15));
+            $failedSms = SmsMessage::factory()->create([
+                'content' => $message,
+                'status' => 'failed',
+                'sent_at' => $failedAt,
+            ]);
+            $failedSms->patients()->attach($failedPatient->id);
+            $failedPatient->refresh();
+            $failedPatient->update([
+                'status' => PatientStatusHelper::getStatus($failedPatient),
+                'last_sent_at' => $failedAt,
+            ]);
+        }
+        // Ensure at least one of each status exists in the database for this user
+        $statuses = ['pending', 'sent', 'completed', 'failed'];
+        foreach ($statuses as $status) {
+            if (SmsMessage::where('status', $status)->whereHas('patients', function($q) use ($user) { $q->where('user_id', $user->id); })->count() === 0) {
+                $sms = SmsMessage::factory()->create([
+                    'content' => $message,
+                    'status' => $status,
+                    'sent_at' => now(),
+                ]);
+                $randomPatient = Patient::where('user_id', $user->id)->inRandomOrder()->first();
+                if ($randomPatient) {
+                    $sms->patients()->attach($randomPatient->id);
+                }
             }
         }
     }
