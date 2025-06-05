@@ -44,7 +44,7 @@ interface AppHeaderProps {
 
 export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
     const page = usePage<SharedData>();
-    const { auth } = page.props;
+    const { auth, demo_mode } = page.props;
     const getInitials = useInitials();
     return (
         <>
@@ -125,6 +125,11 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                     </div>
 
                     <div className="ml-auto flex items-center space-x-2">
+                        {Boolean(demo_mode) && (
+                            <span className="ml-4 px-3 py-1 bg-red-600 text-white rounded-full font-bold text-xs uppercase tracking-wider">
+                                Demo Data
+                            </span>
+                        )}
                         <div className="relative flex items-center space-x-1">
                             {/* <Button variant="ghost" size="icon" className="group h-9 w-9 cursor-pointer">
                                 <Search className="!size-5 opacity-80 group-hover:opacity-100" />

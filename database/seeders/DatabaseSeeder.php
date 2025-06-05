@@ -13,9 +13,11 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $this->call([
-            PatientSeeder::class,
-            SmsMessageSeeder::class,
-        ]);
+        // Demo data is only seeded for individual users on registration or reset.
+        // Do NOT uncomment the lines below unless you want to seed demo data for ALL users globally (not recommended for MVP/demo):
+        // $this->call([
+        //     PatientSeeder::class,
+        //     SmsMessageSeeder::class,
+        // ]);
     }
 }

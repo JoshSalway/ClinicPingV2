@@ -106,5 +106,4 @@ class PatientSeeder extends Seeder
             return '+1 ' . $faker->numberBetween(200, 999) . '-' . $faker->numberBetween(200, 999) . '-' . $faker->numberBetween(1000, 9999);
         }
     }
-} 
-} 
+}

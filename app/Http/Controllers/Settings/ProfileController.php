@@ -60,4 +60,15 @@ class ProfileController extends Controller
 
         return redirect('/');
     }
+
+    public function resetDemoData(Request $request)
+    {
+        if (!config('app.demo_mode')) {
+            abort(403, 'Demo mode is not enabled.');
+        }
+        $user = $request->user();
+        $user->patients()->delete();
+        \Database\Seeders\DemoPatientSeeder::seedForUser($user);
+        return back()->with('status', 'Demo data has been reset!');
+    }
 }

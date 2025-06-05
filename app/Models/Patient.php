@@ -18,6 +18,7 @@ class Patient extends Model
         'appointment_at',
         'last_sent_at',
         'status',
+        'user_id',
     ];
 
     protected $casts = [
@@ -40,5 +41,10 @@ class Patient extends Model
     public function smsMessagesMany()
     {
         return $this->belongsToMany(SmsMessage::class, 'patient_sms_message');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(\App\Models\User::class)->withDefault();
     }
 }
