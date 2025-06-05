@@ -11,11 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('patient_sms_message', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('patient_id')->constrained()->onDelete('cascade');
-            $table->foreignId('sms_message_id')->constrained()->onDelete('cascade');
-            $table->timestamps();
+        Schema::table('patients', function (Blueprint $table) {
+            $table->dropColumn(['last_sent_at', 'status']);
         });
     }
 
@@ -24,6 +21,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('patient_sms_message');
+        Schema::table('patients', function (Blueprint $table) {
+            $table->timestamp('last_sent_at')->nullable();
+            $table->string('status')->nullable();
+        });
     }
 };

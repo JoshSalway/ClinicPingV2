@@ -12,12 +12,15 @@ class PatientStatusHelper
      */
     public static function getStatus(Patient $patient): string
     {
-        if ($patient->smsMessages()->where('status', 'completed')->exists()) {
+        // Completed: has at least one SMS with completed_at not null
+        if ($patient->smsMessages()->whereNotNull('completed_at')->exists()) {
             return 'completed';
         }
-        if ($patient->smsMessages()->where('status', 'sent')->exists()) {
+        // Sent: has at least one SMS with sent_at not null and completed_at is null
+        if ($patient->smsMessages()->whereNotNull('sent_at')->whereNull('completed_at')->where('status', 'sent')->exists()) {
             return 'sent';
         }
+        // Failed: has at least one failed SMS
         if ($patient->smsMessages()->where('status', 'failed')->exists()) {
             return 'failed';
         }

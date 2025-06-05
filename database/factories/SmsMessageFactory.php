@@ -18,8 +18,9 @@ class SmsMessageFactory extends Factory
     {
         return [
             'content' => 'Please complete your medical history form: [form link]',
-            'status' => $this->faker->randomElement(['pending', 'sent', 'completed', 'failed']),
             'sent_at' => $this->faker->optional()->dateTimeThisYear(),
+            'completed_at' => null,
+            'failed_at' => null,
         ];
     }
 
@@ -27,13 +28,6 @@ class SmsMessageFactory extends Factory
     {
         return $this->state([
             'sent_at' => now(),
-        ]);
-    }
-
-    public function pending()
-    {
-        return $this->state([
-            'status' => 'pending',
         ]);
     }
 }

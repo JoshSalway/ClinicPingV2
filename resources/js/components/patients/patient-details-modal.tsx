@@ -58,8 +58,35 @@ export default function PatientDetailsModal({ open, onOpenChange, patientId, onC
   }, [open, patientId]);
 
   const smsMessages = patient?.sms_messages || [];
-  // Sort messages by sent_at descending (most recent first)
-  const sortedSms = [...smsMessages].sort((a, b) => new Date(b.sent_at).getTime() - new Date(a.sent_at).getTime());
+  // Derive status and timestamps from latest SMS
+  let status: StatusType = 'pending';
+  let lastSentAt: string | undefined = undefined;
+  let completedAt: string | undefined = undefined;
+  if (smsMessages.length > 0) {
+    const latestSms = [...smsMessages]
+      .sort((a, b) => {
+        const aTime = a.sent_at ? new Date(a.sent_at).getTime() : 0;
+        const bTime = b.sent_at ? new Date(b.sent_at).getTime() : 0;
+        return bTime - aTime;
+      })[0];
+    if (latestSms.sent_at) {
+      lastSentAt = latestSms.sent_at;
+      if ((latestSms as any).completed_at) {
+        completedAt = (latestSms as any).completed_at;
+        status = 'completed';
+      } else {
+        status = 'sent';
+      }
+    } else {
+      status = 'pending';
+    }
+  }
+  // Sort messages by completed_at (most recent completed at top), then sent_at
+  const sortedSms = [...smsMessages].sort((a, b) => {
+    const aTime = (a as any).completed_at ? new Date((a as any).completed_at).getTime() : (a.sent_at ? new Date(a.sent_at).getTime() : 0);
+    const bTime = (b as any).completed_at ? new Date((b as any).completed_at).getTime() : (b.sent_at ? new Date(b.sent_at).getTime() : 0);
+    return bTime - aTime;
+  });
   const totalPages = Math.ceil(sortedSms.length / SMS_PER_PAGE);
   const paginatedSms = sortedSms.slice((page - 1) * SMS_PER_PAGE, page * SMS_PER_PAGE);
 
@@ -85,9 +112,12 @@ export default function PatientDetailsModal({ open, onOpenChange, patientId, onC
                   : '-'}
               </div>
               <div className="flex items-center gap-2 text-gray-500 text-sm mb-1">
-                Status: <StatusBadge status={patient.status as StatusType} />
+                Status: <StatusBadge status={status} />
               </div>
-              <div className="text-gray-500 text-sm">Last Sent: {patient.last_sent_at ? new Date(patient.last_sent_at).toLocaleString('en-AU', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true }) : 'Never'}</div>
+              <div className="text-gray-500 text-sm">Last Sent: {lastSentAt ? new Date(lastSentAt).toLocaleString('en-AU', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true }) : 'Never'}</div>
+              {completedAt && (
+                <div className="text-gray-500 text-sm">Completed: {new Date(completedAt).toLocaleString('en-AU', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true })}</div>
+              )}
             </div>
             {/* Form History Card */}
             <div className="rounded-lg border bg-white dark:bg-neutral-900 p-4 shadow-sm">

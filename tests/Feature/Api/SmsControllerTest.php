@@ -14,8 +14,6 @@ beforeEach(function () {
 
 test('can send sms in demo mode and update patient', function () {
     $patient = Patient::factory()->create([
-        'status' => 'pending',
-        'last_sent_at' => null,
         'phone' => '+61 412 345 678',
     ]);
     $message = 'Test SMS message';
@@ -27,13 +25,11 @@ test('can send sms in demo mode and update patient', function () {
 
     $response->assertOk()->assertJson(['success' => true]);
 
-    $patient->refresh();
-    expect($patient->status)->toBe('sent');
-    expect($patient->last_sent_at)->not->toBeNull();
-
     $sms = SmsMessage::where('content', $message)->first();
     expect($sms)->not->toBeNull();
-    expect($sms->status)->toBe('sent');
+    expect($sms->sent_at)->not->toBeNull();
+    expect($sms->completed_at)->toBeNull();
+    expect($sms->failed_at)->toBeNull();
     expect($sms->patients->pluck('id'))->toContain($patient->id);
 });
 

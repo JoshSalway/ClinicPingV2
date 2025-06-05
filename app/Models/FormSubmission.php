@@ -5,22 +5,23 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class SmsMessage extends Model
+class FormSubmission extends Model
 {
-    /** @use HasFactory<\Database\Factories\SmsMessageFactory> */
     use HasFactory;
 
     protected $fillable = [
-        'content',
-        'sent_at',
+        'patient_id',
+        'user_id',
+        'data',
+        'status',
+        'started_at',
         'completed_at',
-        'failed_at',
     ];
 
     protected $casts = [
-        'sent_at' => 'datetime',
+        'data' => 'array',
+        'started_at' => 'datetime',
         'completed_at' => 'datetime',
-        'failed_at' => 'datetime',
     ];
 
     public function patient()
@@ -28,8 +29,8 @@ class SmsMessage extends Model
         return $this->belongsTo(Patient::class);
     }
 
-    public function patients()
+    public function user()
     {
-        return $this->belongsToMany(Patient::class, 'patient_sms_message');
+        return $this->belongsTo(User::class);
     }
-}
+} 

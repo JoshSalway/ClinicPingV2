@@ -6,12 +6,13 @@ import { Button } from '@/components/ui/button';
 import AddPatientModal from '@/components/patients/AddPatientModal';
 import StatusBadge from './status-badge';
 import SendSmsModal from './SendSmsModal';
-import PatientDetailsModal from './PatientDetailsModal';
+import PatientDetailsModal from './patient-details-modal';
 
 interface SmsMessage {
   id: number;
   status: string;
   sent_at: string;
+  completed_at?: string;
 }
 
 type StatusType = 'completed' | 'sent' | 'pending' | 'failed';
@@ -193,6 +194,28 @@ export default function PatientTable() {
                 </tr>
               ) : (
                 safeData.data.map((patient: Patient) => {
+                  // Derive status and last sent from latest SMS
+                  let status: StatusType = 'pending';
+                  let lastSentAt: string | undefined = undefined;
+                  if (patient.sms_messages && patient.sms_messages.length > 0) {
+                    // Find the latest SMS by sent_at (or created_at if sent_at is null)
+                    const latestSms = [...patient.sms_messages]
+                      .sort((a, b) => {
+                        const aTime = a.sent_at ? new Date(a.sent_at).getTime() : 0;
+                        const bTime = b.sent_at ? new Date(b.sent_at).getTime() : 0;
+                        return bTime - aTime;
+                      })[0];
+                    if (latestSms.sent_at) {
+                      lastSentAt = latestSms.sent_at;
+                      if (latestSms.completed_at) {
+                        status = 'completed';
+                      } else {
+                        status = 'sent';
+                      }
+                    } else {
+                      status = 'pending';
+                    }
+                  }
                   const cooldownUntil = cooldowns[patient.id] || 0;
                   const now = Date.now();
                   const secondsLeft = Math.max(0, Math.ceil((cooldownUntil - now) / 1000));
@@ -246,20 +269,18 @@ export default function PatientTable() {
                         }
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <StatusBadge status={patient.status || 'pending'} />
+                        <StatusBadge status={status} />
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        {patient.status !== 'pending' && (
+                        {status !== 'pending' && lastSentAt ? (
                           <div className="text-sm text-gray-900 dark:text-white">
-                            {patient.last_sent_at
-                              ? new Date(patient.last_sent_at).toLocaleString('en-AU', {
-                                  dateStyle: 'short',
-                                  timeStyle: 'short',
-                                  timeZone: 'Australia/Sydney',
-                                })
-                              : 'Never'}
+                            {new Date(lastSentAt).toLocaleString('en-AU', {
+                              dateStyle: 'short',
+                              timeStyle: 'short',
+                              timeZone: 'Australia/Sydney',
+                            })}
                           </div>
-                        )}
+                        ) : 'Never'}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
                         <Button

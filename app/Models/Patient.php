@@ -16,19 +16,18 @@ class Patient extends Model
         'email',
         'phone',
         'appointment_at',
-        'last_sent_at',
-        'status',
         'user_id',
     ];
 
     protected $casts = [
         'appointment_at' => 'datetime',
-        'last_sent_at' => 'datetime',
     ];
 
     public function smsMessages()
     {
-        return $this->belongsToMany(SmsMessage::class, 'patient_sms_message');
+        return $this->belongsToMany(SmsMessage::class)
+            ->withTimestamps()
+            ->select(['sms_messages.id', 'sms_messages.content', 'sms_messages.sent_at', 'sms_messages.completed_at', 'sms_messages.failed_at']);
     }
 
     public function latestSmsMessage()
@@ -46,5 +45,10 @@ class Patient extends Model
     public function user()
     {
         return $this->belongsTo(\App\Models\User::class)->withDefault();
+    }
+
+    public function formSubmissions()
+    {
+        return $this->hasMany(FormSubmission::class);
     }
 }

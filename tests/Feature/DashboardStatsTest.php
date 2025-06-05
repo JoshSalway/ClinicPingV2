@@ -20,13 +20,28 @@ it('ensures dashboard stats have at least one record for each stat', function ()
     $sentToday = SmsMessage::whereDate('sent_at', Carbon::today('UTC'))->count();
     expect($sentToday)->toBeGreaterThan(0);
 
-    // Pending SMS messages
-    $pending = SmsMessage::where('status', 'pending')->count();
+    // Pending SMS messages (no sent_at)
+    $pending = SmsMessage::whereNull('sent_at')->count();
     expect($pending)->toBeGreaterThan(0);
+
+    // Completed SMS messages (completed_at not null)
+    $completed = SmsMessage::whereNotNull('completed_at')->count();
+    expect($completed)->toBeGreaterThan(0);
+
+    // Failed SMS messages (failed_at not null)
+    $failed = SmsMessage::whereNotNull('failed_at')->count();
+    expect($failed)->toBeGreaterThanOrEqual(0);
 
     // Patients with appointment today
     $appointmentsToday = Patient::whereDate('appointment_at', Carbon::today('UTC'))->count();
     expect($appointmentsToday)->toBeGreaterThan(0);
+
+    // Unique patients with sent/completed SMS today
+    $uniquePatientsWithSentToday = Patient::whereHas('smsMessages', function($q) {
+        $q->whereNotNull('sent_at')
+          ->whereDate('sent_at', Carbon::today('UTC'));
+    })->count();
+    expect($uniquePatientsWithSentToday)->toBeGreaterThan(0);
 });
 
 it('dashboard returns correct pending forms count', function () {
