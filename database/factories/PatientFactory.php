@@ -20,8 +20,8 @@ class PatientFactory extends Factory
             'email' => $this->faker->safeEmail(),
             'phone' => $this->faker->phoneNumber(),
             'appointment_at' => $this->faker->dateTimeBetween('now', '+2 months'),
-            'last_sent_at' => $this->faker->optional(0.7)->dateTimeBetween('-1 month', 'now'),
-            'status' => $this->faker->randomElement(['pending', 'sent', 'completed', 'failed']),
+            'last_sent_at' => null,
+            'status' => 'pending',
         ];
     }
 
