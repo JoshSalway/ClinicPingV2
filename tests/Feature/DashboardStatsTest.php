@@ -30,10 +30,10 @@ it('ensures dashboard stats have at least one record for each stat', function ()
 });
 
 it('dashboard returns correct pending forms count', function () {
-    $this->seed(\Database\Seeders\PatientSeeder::class);
-    $this->seed(\Database\Seeders\SmsMessageSeeder::class);
-
-    $this->actingAs(User::factory()->create());
+    $user = User::factory()->create(['timezone' => 'Australia/Melbourne']);
+    $this->actingAs($user);
+    \Database\Seeders\PatientSeeder::seedForUser($user, 12);
+    \Database\Seeders\SmsMessageSeeder::seedForUser($user);
     $response = $this->get('/dashboard');
     $response->assertOk();
     $response->assertInertia(fn ($page) => $page

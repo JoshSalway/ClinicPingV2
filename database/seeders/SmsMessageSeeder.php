@@ -116,7 +116,8 @@ class SmsMessageSeeder extends Seeder
     public function runForUser(User $user)
     {
         $message = 'Please complete your medical history form: [form link]';
-        $today = now()->format('Y-m-d');
+        $tz = $user->timezone ?? 'Australia/Melbourne';
+        $today = Carbon::now($tz)->format('Y-m-d');
         $todaysPatients = Patient::where('user_id', $user->id)
             ->whereDate('appointment_at', $today)
             ->orderBy('appointment_at')
@@ -126,8 +127,8 @@ class SmsMessageSeeder extends Seeder
         $sentPatients = $todaysPatients->slice(3, 3);
         $pendingPatients = $todaysPatients->slice(6);
         // Helper functions for clarity
-        $createSentSms = function($patient, $appointment) use ($message) {
-            $sentAt = (clone $appointment)->subMinutes(rand(10, 30));
+        $createSentSms = function($patient, $appointment) use ($message, $tz) {
+            $sentAt = Carbon::parse($appointment, $tz)->subMinutes(rand(10, 30))->setTimezone('UTC');
             $sentSms = SmsMessage::factory()->create([
                 'content' => $message,
                 'status' => 'sent',
@@ -136,8 +137,8 @@ class SmsMessageSeeder extends Seeder
             $sentSms->patients()->attach($patient->id);
             return $sentAt;
         };
-        $createCompletedSms = function($patient, $afterTime) use ($message) {
-            $completedAt = (clone $afterTime)->addMinutes(rand(1, 10));
+        $createCompletedSms = function($patient, $afterTime) use ($message, $tz) {
+            $completedAt = Carbon::parse($afterTime, $tz)->addMinutes(rand(1, 10))->setTimezone('UTC');
             $completedSms = SmsMessage::factory()->create([
                 'content' => $message,
                 'status' => 'completed',
@@ -146,11 +147,11 @@ class SmsMessageSeeder extends Seeder
             $completedSms->patients()->attach($patient->id);
             return $completedAt;
         };
-        $createPendingSms = function($patient, $appointment) use ($message) {
+        $createPendingSms = function($patient, $appointment) use ($message, $tz) {
             $pendingSms = SmsMessage::factory()->create([
                 'content' => $message,
                 'status' => 'pending',
-                'sent_at' => $appointment,
+                'sent_at' => Carbon::parse($appointment, $tz)->setTimezone('UTC'),
             ]);
             $pendingSms->patients()->attach($patient->id);
         };
@@ -193,7 +194,7 @@ class SmsMessageSeeder extends Seeder
         if ($failedPatient) {
             $appointment = $failedPatient->appointment_at;
             $sentAt = $createSentSms($failedPatient, $appointment);
-            $failedAt = (clone $sentAt)->addMinutes(rand(5, 15));
+            $failedAt = Carbon::parse($sentAt, $tz)->addMinutes(rand(5, 15))->setTimezone('UTC');
             $failedSms = SmsMessage::factory()->create([
                 'content' => $message,
                 'status' => 'failed',
@@ -213,7 +214,7 @@ class SmsMessageSeeder extends Seeder
                 $sms = SmsMessage::factory()->create([
                     'content' => $message,
                     'status' => $status,
-                    'sent_at' => now(),
+                    'sent_at' => Carbon::now($tz)->setTimezone('UTC'),
                 ]);
                 $randomPatient = Patient::where('user_id', $user->id)->inRandomOrder()->first();
                 if ($randomPatient) {

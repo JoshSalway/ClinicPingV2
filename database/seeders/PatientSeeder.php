@@ -106,4 +106,11 @@ class PatientSeeder extends Seeder
             return '+1 ' . $faker->numberBetween(200, 999) . '-' . $faker->numberBetween(200, 999) . '-' . $faker->numberBetween(1000, 9999);
         }
     }
+
+    public function run()
+    {
+        // For test compatibility: seed for the first user or create one
+        $user = \App\Models\User::first() ?? \App\Models\User::factory()->create();
+        $this->runForUser($user, 100);
+    }
 }

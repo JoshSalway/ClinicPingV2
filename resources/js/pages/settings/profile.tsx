@@ -3,6 +3,7 @@ import { Transition } from '@headlessui/react';
 import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import { FormEventHandler, useState } from 'react';
 import axios from 'axios';
+import { useToast } from '@/components/ui/use-toast';
 
 import DeleteUser from '@/components/delete-user';
 import HeadingSmall from '@/components/heading-small';
@@ -92,6 +93,7 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
     const { auth, demo_mode } = usePage<SharedData & { demo_mode?: boolean }>().props;
     const [resetting, setResetting] = useState(false);
     const [resetStatus, setResetStatus] = useState<string | null>(null);
+    const { addToast } = useToast();
 
     const { data, setData, patch, errors, processing, recentlySuccessful } = useForm<Required<ProfileForm>>({
         name: auth.user.name,
@@ -231,9 +233,17 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
                                     setResetStatus(null);
                                     try {
                                         await axios.post(route('settings.reset-demo-data'));
-                                        setResetStatus('Demo data has been reset!');
+                                        addToast({
+                                            id: Math.random().toString(36),
+                                            title: 'Demo data has been reset!',
+                                            type: 'success',
+                                        });
                                     } catch (err) {
-                                        setResetStatus('Failed to reset demo data.');
+                                        addToast({
+                                            id: Math.random().toString(36),
+                                            title: 'Failed to reset demo data.',
+                                            type: 'error',
+                                        });
                                     } finally {
                                         setResetting(false);
                                     }
@@ -247,7 +257,6 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
                                     {resetting ? 'Resetting...' : 'Reset demo data'}
                                 </button>
                             </form>
-                            {resetStatus && <p className="mt-2 text-sm text-green-600">{resetStatus}</p>}
                         </div>
                     </div>
                 )}

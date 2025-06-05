@@ -22,6 +22,7 @@ test('profile information can be updated', function () {
         ->patch('/settings/profile', [
             'name' => 'Test User',
             'email' => 'test@example.com',
+            'timezone' => 'Australia/Melbourne',
         ]);
 
     $response
@@ -43,6 +44,7 @@ test('email verification status is unchanged when the email address is unchanged
         ->patch('/settings/profile', [
             'name' => 'Test User',
             'email' => $user->email,
+            'timezone' => 'Australia/Melbourne',
         ]);
 
     $response
