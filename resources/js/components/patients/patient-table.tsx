@@ -275,9 +275,9 @@ export default function PatientTable() {
                         {status !== 'pending' && lastSentAt ? (
                           <div className="text-sm text-gray-900 dark:text-white">
                             {new Date(lastSentAt).toLocaleString('en-AU', {
-                              dateStyle: 'short',
-                              timeStyle: 'short',
-                              timeZone: 'Australia/Sydney',
+                                  dateStyle: 'short',
+                                  timeStyle: 'short',
+                                  timeZone: 'Australia/Sydney',
                             })}
                           </div>
                         ) : 'Never'}
@@ -290,8 +290,8 @@ export default function PatientTable() {
                             : "bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-md dark:bg-blue-500 dark:hover:bg-blue-400"}
                           onClick={() => {
                             if (secondsLeft === 0) {
-                              setSelectedPatient(patient);
-                              setSmsModalOpen(true);
+                            setSelectedPatient(patient);
+                            setSmsModalOpen(true);
                             }
                           }}
                           disabled={secondsLeft > 0}
@@ -299,23 +299,23 @@ export default function PatientTable() {
                           {secondsLeft > 0
                             ? `Retry send SMS form in ${secondsLeft}s`
                             : <>
-                                <svg
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  width="24"
-                                  height="24"
-                                  viewBox="0 0 24 24"
-                                  fill="none"
-                                  stroke="currentColor"
-                                  strokeWidth="2"
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  className="h-4 w-4 mr-1"
-                                >
-                                  <path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z"></path>
-                                  <path d="m21.854 2.147-10.94 10.939"></path>
-                                </svg>
-                                SMS Form
-                              </>
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="24"
+                                height="24"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                className="h-4 w-4 mr-1"
+                              >
+                                <path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z"></path>
+                                <path d="m21.854 2.147-10.94 10.939"></path>
+                              </svg>
+                              SMS Form
+                            </>
                           }
                         </Button>
                         <Button 

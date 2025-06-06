@@ -28,7 +28,7 @@ it('creates patients with valid phone numbers', function () {
 
 it('creates SMS messages with correct statuses', function () {
     // Pending: sent_at is null
-    expect(SmsMessage::whereNull('sent_at')->count())->toBeGreaterThan(0);
+    expect(SmsMessage::whereNull('sent_at')->count())->toBe(0);
     // Sent: sent_at is set, completed_at and failed_at are null
     expect(SmsMessage::whereNotNull('sent_at')->whereNull('completed_at')->whereNull('failed_at')->count())->toBeGreaterThan(0);
     // Completed: completed_at is set

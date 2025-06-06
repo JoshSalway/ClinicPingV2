@@ -18,7 +18,7 @@ class SmsMessageFactory extends Factory
     {
         return [
             'content' => 'Please complete your medical history form: [form link]',
-            'sent_at' => $this->faker->optional()->dateTimeThisYear(),
+            'sent_at' => $this->faker->dateTimeThisYear(),
             'completed_at' => null,
             'failed_at' => null,
         ];

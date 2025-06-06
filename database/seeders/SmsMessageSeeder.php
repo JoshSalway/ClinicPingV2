@@ -38,10 +38,11 @@ class SmsMessageSeeder extends Seeder
         }
 
         // For today's appointments, assign statuses deterministically:
-        // First 3: completed, next 3: sent, rest: pending
+        // First 3: completed, next 3: sent, next 1: failed, rest: pending
         $completedPatients = $todaysPatients->slice(0, 3);
         $sentPatients = $todaysPatients->slice(3, 3);
-        $pendingPatients = $todaysPatients->slice(6);
+        $failedPatient = $todaysPatients->slice(6, 1);
+        $pendingPatients = $todaysPatients->slice(7);
 
         // Completed
         foreach ($completedPatients as $patient) {
@@ -56,7 +57,7 @@ class SmsMessageSeeder extends Seeder
             ]);
             $sms->patients()->attach($patient->id);
         }
-        // Sent
+        // Sent only
         foreach ($sentPatients as $patient) {
             $appointment = $patient->appointment_at;
             $sentAt = Carbon::parse($appointment, $tz)->subMinutes(30)->setTimezone('UTC');
@@ -68,11 +69,26 @@ class SmsMessageSeeder extends Seeder
             ]);
             $sms->patients()->attach($patient->id);
         }
-        // Pending
-        foreach ($pendingPatients as $patient) {
+        // Failed (only one)
+        foreach ($failedPatient as $patient) {
+            $appointment = $patient->appointment_at;
+            $sentAt = Carbon::parse($appointment, $tz)->subMinutes(20)->setTimezone('UTC');
+            $failedAt = $sentAt->copy()->addMinutes(5);
             $sms = SmsMessage::factory()->create([
                 'content' => $message,
-                'sent_at' => null,
+                'sent_at' => $sentAt,
+                'completed_at' => null,
+                'failed_at' => $failedAt,
+            ]);
+            $sms->patients()->attach($patient->id);
+        }
+        // Pending
+        foreach ($pendingPatients as $patient) {
+            $appointment = $patient->appointment_at;
+            $sentAt = Carbon::parse($appointment, $tz)->subMinutes(15)->setTimezone('UTC');
+            $sms = SmsMessage::factory()->create([
+                'content' => $message,
+                'sent_at' => $sentAt,
                 'completed_at' => null,
                 'failed_at' => null,
             ]);
@@ -84,7 +100,7 @@ class SmsMessageSeeder extends Seeder
         if (SmsMessage::whereNull('sent_at')->count() === 0) {
             $sms = SmsMessage::factory()->create([
                 'content' => $message,
-                'sent_at' => null,
+                'sent_at' => now(),
                 'completed_at' => null,
                 'failed_at' => null,
             ]);
@@ -101,7 +117,7 @@ class SmsMessageSeeder extends Seeder
             ]);
             $randomPatient = Patient::inRandomOrder()->first();
             $sms->patients()->attach($randomPatient->id);
-        }
+            }
         // Completed: sent_at and completed_at set
         if (SmsMessage::whereNotNull('sent_at')->whereNotNull('completed_at')->count() === 0) {
             $sentAt = now();
@@ -180,7 +196,7 @@ class SmsMessageSeeder extends Seeder
         $createPendingSms = function($patient, $appointment) use ($message, $tz) {
             $pendingSms = SmsMessage::factory()->create([
                 'content' => $message,
-                'sent_at' => null,
+                'sent_at' => now(),
                 'completed_at' => null,
                 'failed_at' => null,
             ]);

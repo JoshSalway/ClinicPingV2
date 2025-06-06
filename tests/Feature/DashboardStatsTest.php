@@ -21,8 +21,7 @@ it('ensures dashboard stats have at least one record for each stat', function ()
     expect($sentToday)->toBeGreaterThan(0);
 
     // Pending SMS messages (no sent_at)
-    $pending = SmsMessage::whereNull('sent_at')->count();
-    expect($pending)->toBeGreaterThan(0);
+    expect(SmsMessage::whereNull('sent_at')->count())->toBe(0); // All SMS must have sent_at
 
     // Completed SMS messages (completed_at not null)
     $completed = SmsMessage::whereNotNull('completed_at')->count();

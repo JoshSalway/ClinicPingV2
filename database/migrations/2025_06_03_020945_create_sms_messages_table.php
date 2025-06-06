@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('sms_messages', function (Blueprint $table) {
             $table->id();
             $table->string('content');
-            $table->timestamp('sent_at')->nullable();
+            $table->timestamp('sent_at');
             $table->timestamp('completed_at')->nullable();
             $table->timestamp('failed_at')->nullable();
             $table->timestamps();

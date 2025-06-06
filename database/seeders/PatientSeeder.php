@@ -114,4 +114,4 @@ class PatientSeeder extends Seeder
         $user = \App\Models\User::first() ?? \App\Models\User::factory()->create();
         $this->runForUser($user, 100);
     }
-}
+} 
